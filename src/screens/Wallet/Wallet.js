@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, SafeAreaView, TouchableOpacity, Dimensions, Animated, PanResponder, Pressable } from 'react-native';
 import { fonts, icons, images } from '../../assets';
-import { colors } from '../../utils';
+import { colors, formatToRupiah } from '../../utils';
 import IonIcons from 'react-native-vector-icons/Ionicons'
 import { getProfile } from '../../services/Profile';
 import { getAllActivity } from '../../services/Activity';
@@ -92,7 +92,7 @@ const Wallet = ({navigation,route}) => {
 		{/* Saldo Aktif */}
 		<Text style={{ fontSize: 14, fontFamily: fonts.PoppinsRegular, color: colors.white }}>Saldo aktif yang kamu miliki</Text>
 		{/* Jumlah Saldo */}
-		<Text style={{ fontSize: 24, fontFamily: fonts.PoppinsBold, color: colors.white }}>Rp {dataUser?.saldo}</Text>
+		<Text style={{ fontSize: 24, fontFamily: fonts.PoppinsBold, color: colors.white }}>{formatToRupiah( dataUser?.saldo)}</Text>
 		{/* Divider */}
 		<View style={{ width: '100%', padding: 12 }}>
 			<View style={styles.divider} />

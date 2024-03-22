@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, Modal, TouchableOpacity, ToastAndroid, TextInput } from 'react-native';
-import { colors } from '../../utils';
+import { colors, formatToRupiah } from '../../utils';
 import { getProfile } from '../../services/Profile';
 import IonIcon from 'react-native-vector-icons/Ionicons'
 import { fonts, icons } from '../../assets';
 import { ButtonCustom, TextInputWithIcon, TextInputWithoutIcon } from '../../components';
 import { sendMoney, topup } from '../../services/Wallet';
+import { convertToNumber } from '../../utils/functions';
 
 const SendToFriend = ({navigation,route}) => {
     const {data} = route?.params
@@ -45,7 +46,7 @@ const SendToFriend = ({navigation,route}) => {
     const handlerSend = async()=>{
         const formData = new FormData()
         formData.append('to',data?.id)
-        formData.append('nominal',nominal)
+        formData.append('nominal',convertToNumber(nominal))
         formData.append('desc', notes)
         formData.append('password',pin)
 
@@ -95,7 +96,7 @@ const SendToFriend = ({navigation,route}) => {
                     </View>
                     <View style={{height:1, width:'100%', backgroundColor:colors.lightGray,marginVertical:10}}/>
                     <Text style={{fontFamily:fonts.PoppinsRegular, color:colors.gray, fontSize:12}}>JUMLAH KIRIM</Text>
-                    <TextInput placeholder='100000' placeholderTextColor={colors.lightGray} style={{fontSize: 28, fontFamily:fonts.PoppinsSemibold, color:colors.black}} keyboardType='numeric' numberOfLines={1} value={nominal} onChangeText={setNominal}/>
+                    <TextInput placeholder='Rp 100.000' placeholderTextColor={colors.lightGray} style={{fontSize: 28, fontFamily:fonts.PoppinsSemibold, color:colors.black}} keyboardType='numeric' numberOfLines={1} value={nominal} onChangeText={(value) => setNominal(formatToRupiah(value.replace(/\D/g, '')))} />
                     <TextInput placeholder='Tulis Catatan' placeholderTextColor={colors.gray} style={{fontFamily:fonts.PoppinsRegular, color:colors.black,borderWidth:1, borderRadius:12, borderColor:colors.lightGray, paddingHorizontal:10}} numberOfLines={1} textAlignVertical='center' value={notes} onChangeText={setNotes}/>
                 </View>
                 <ButtonCustom title='Send' buttonStyle={{marginTop: 12}} onPress={toggleModal}/>

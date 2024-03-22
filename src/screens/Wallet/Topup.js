@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, Modal, TouchableOpacity, ToastAndroid } from 'react-native';
-import { colors } from '../../utils';
+import { colors, formatToRupiah } from '../../utils';
 import { getProfile } from '../../services/Profile';
 import IonIcon from 'react-native-vector-icons/Ionicons'
 import { fonts, icons } from '../../assets';
 import { ButtonCustom, TextInputWithIcon, TextInputWithoutIcon } from '../../components';
 import { topup } from '../../services/Wallet';
+import { convertToNumber } from '../../utils/functions';
 
 const Topup = ({navigation,route}) => {
 	const [dataUser,setDataUser] = useState(null)
@@ -54,7 +55,7 @@ const Topup = ({navigation,route}) => {
 
     const handlerTopUp = async() => {
         const param ={
-            nominal: total,
+            nominal: convertToNumber(total),
             password: pin
         }
         console.log('param kirim',param)
@@ -90,10 +91,10 @@ const Topup = ({navigation,route}) => {
 			</View>
 			<View style={styles.balanceWrapper}>
 				<Text style={styles.descBalance}>Saldo aktif yang kamu miliki</Text>
-				<Text style={styles.titleBalance}>Rp {dataUser?.saldo}</Text>
+				<Text style={styles.titleBalance}>{formatToRupiah(dataUser?.saldo)}</Text>
 			</View>
 			<View style={{padding:12}}>
-				<TextInputWithoutIcon title='Jumlah Topup' placeholder='Jumlah Topup' keyboardType={'numeric'} onChangeText={setTotal} value={total}/>
+				<TextInputWithoutIcon title='Jumlah Topup' placeholder='Jumlah Topup' keyboardType={'numeric'}  onChangeText={(value) => setTotal(formatToRupiah(value.replace(/\D/g, '')))}  value={total}/>
 				<ButtonCustom title='Topup' buttonStyle={{marginTop: 25}} onPress={toggleModal} />
 			</View>
 
