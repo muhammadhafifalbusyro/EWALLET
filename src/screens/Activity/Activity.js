@@ -1,102 +1,65 @@
 import React,{useState,useEffect} from 'react';
-import {View, Text, SafeAreaView, StyleSheet, ScrollView,Pressable} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet, ScrollView,Pressable, RefreshControl} from 'react-native';
 import {colors, dimens} from '../../utils';
 import {fonts} from '../../assets';
 import IonIcons from 'react-native-vector-icons/Ionicons'
+import { getAllActivity } from '../../services/Activity';
 
 const Activity = ({navigation, route}) => {
     const [months, setMonths] = useState([]);
     const [currentMonth,setCurrentMonth] = useState(1)
-    const [datas,setDatas] = useState([
-        {
-            id:1,
-            date:'04 Februari 2024',
-            transaction:[
-                {
-                    id:1,
-                    label_id:1,
-                    label_name:'Isi Saldo',
-                    desc:'Isi saldo ke nomor + 628 77 87 berhasil',
-                    status_id:1,
-                    status_name:'Berhasil',
-                    amount_label:'+Rp 100.000',
-                    amount:100000
-                }
-            ]
-        },
-        {
-            id:2,
-            date:'05 Februari 2024',
-            transaction:[
-                {
-                    id:1,
-                    label_id:1,
-                    label_name:'Isi Saldo',
-                    desc:'Isi saldo ke nomor + 628 77 87 berhasil',
-                    status_id:1,
-                    status_name:'Berhasil',
-                    amount_label:'+Rp 100.000',
-                    amount:100000
-                },
-                {
-                    id:2,
-                    label_id:2,
-                    label_name:'Transfer Saldo',
-                    desc:'Transfer saldo ke nomor + 628 77 87 berhasil',
-                    status_id:1,
-                    status_name:'Berhasil',
-                    amount_label:'-Rp 100.000',
-                    amount:100000
-                },
-                {
-                    id:3,
-                    label_id:2,
-                    label_name:'Transfer Saldo',
-                    desc:'Transfer saldo ke nomor + 628 77 87 gagal',
-                    status_id:0,
-                    status_name:'Gagal',
-                    amount_label:'-Rp 100.000',
-                    amount:100000
-                }
-            ]
-        },
-        {
-            id:3,
-            date:'06 Februari 2024',
-            transaction:[
-                {
-                    id:1,
-                    label_id:1,
-                    label_name:'Isi Saldo',
-                    desc:'Isi saldo ke nomor + 628 77 87 berhasil',
-                    status_id:1,
-                    status_name:'Berhasil',
-                    amount_label:'+Rp 100.000',
-                    amount:100000
-                }
-            ]
-        },
-    ])
+    const [datas,setDatas] = useState([])
+    const [loading,setLoading] = useState(false)
 
     const getMonthsArray = () => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = [['01','Jan'], ['02','Feb'],['03','Mar'], ['04','Apr'], ['05','Mei'], ['06','Jun'], ['07','Jul'],['08','Agu'],['09','Sep'], ['10','Okt'], ['11','Nov'], ['12','Des']];
         const currentDate = new Date();
         const currentMonthIndex = currentDate.getMonth();
         const prevMonthIndex = (currentMonthIndex - 1 + 12) % 12; // Handle wrapping around to previous year
         const nextMonthIndex1 = (currentMonthIndex + 1) % 12;
         const nextMonthIndex2 = (currentMonthIndex + 2) % 12;
 
-        const currentMonth = { name: months[currentMonthIndex], id: currentMonthIndex + 1 };
-        const prevMonth = { name: months[prevMonthIndex], id: prevMonthIndex + 1 };
-        const nextMonth1 = { name: months[nextMonthIndex1], id: nextMonthIndex1 + 1 };
-        const nextMonth2 = { name: months[nextMonthIndex2], id: nextMonthIndex2 + 1 };
+        const currentMonth = { month: months[currentMonthIndex], id: currentMonthIndex + 1 };
+        const prevMonth = { month: months[prevMonthIndex], id: prevMonthIndex + 1 };
+        const nextMonth1 = { month: months[nextMonthIndex1], id: nextMonthIndex1 + 1 };
+        const nextMonth2 = { month: months[nextMonthIndex2], id: nextMonthIndex2 + 1 };
       
         return [prevMonth, currentMonth, nextMonth1, nextMonth2];
     };
 
-    useEffect(() => {
+
+    const handlerGetActivity = async (month) => {
+       
+        const param ={
+            month:month
+        }
+        console.log('param kirim',param)
+        setLoading(true)
+        const response = await getAllActivity(param)
+        console.log("response get all activity", response)
+        if(response?.data){
+            setLoading(false)
+            setDatas(response?.data)
+        }else{
+            setLoading(false)
+            return false
+        }
+    }
+    useEffect(()=>{
         setMonths(getMonthsArray());
-    }, []);
+    },[])
+    useEffect(() => {
+        
+		setTimeout(() => {
+            const month = months[currentMonth]?.month[0]
+            handlerGetActivity(month)
+            const unsubscribe = navigation.addListener('focus', () => {
+                handlerGetActivity(month)
+            });
+	
+		return unsubscribe;
+        }, 500);
+	  }, [navigation,currentMonth]);
       
     return (
         <SafeAreaView style={styles.container}>
@@ -107,7 +70,7 @@ const Activity = ({navigation, route}) => {
                 {months.map((month,key) => (
                     <Pressable key={key} onPress={() => setCurrentMonth(key)}>
                         <View style={[styles.boxMonth,key == currentMonth && {borderBottomWidth:5,borderColor:colors.primary}]}>
-                            <Text style={styles.textMonth}>{month.name}</Text>
+                            <Text style={styles.textMonth}>{month?.month[1]}</Text>
                         </View>
                     </Pressable>
                 ))}
@@ -115,7 +78,7 @@ const Activity = ({navigation, route}) => {
             <View style={styles.wrapperHeader}>
                 <Text style={styles.textAllTransaction}>Semua Transaksi</Text>
             </View>
-            <ScrollView showVerticalIndicator={false} style={styles.listContainer} contentContainerStyle={styles.contentContainerStyle}>
+            <ScrollView showVerticalIndicator={false} style={styles.listContainer} contentContainerStyle={styles.contentContainerStyle} refreshControl={<RefreshControl refreshing={loading} onRefresh={()=>handlerGetActivity(currentMonth)}/>}>
                 {datas.map((value,key)=>{
                     return (
                         <View style={styles.contentWrapper} key={key}>
@@ -123,14 +86,14 @@ const Activity = ({navigation, route}) => {
                             {value?.transaction.map((value2, key2)=>{
                                 return (
                                     <View style={styles.subContentWrapper} key={key2}>
-                                        <IonIcons name={value2?.label_id == 1 ? "arrow-down-circle-outline" :'arrow-up-circle-outline'} size={24} color={colors.primary}/>
+                                        <IonIcons name={value2?.transaction?.label_name != 'Saldo Keluar' ? "arrow-down-circle-outline" :'arrow-up-circle-outline'} size={24} color={colors.primary}/>
                                         <View style={{flex:1,marginHorizontal:5}}>
-                                            <Text style={styles.label}>{value2.label_name}</Text>
-                                            <Text style={styles.desc}>{value2.desc}</Text>
-                                            <Text style={[styles.status,value2.status_id == 0 && {color:colors.red}]}>{value2.status_name}</Text>
+                                            <Text style={styles.label}>{value2?.transaction?.label_name}</Text>
+                                            <Text style={styles.desc}>{value2?.transaction?.desc}</Text>
+                                            <Text style={[styles.status,value2?.transaction?.status != true && {color:colors.red}]}>{value2.transaction?.status == true ? 'Berhasil' :'Gagal'}</Text>
                                         </View>
                                         <View style={{width:'30%'}}>
-                                            <Text style={[styles.amount,value2?.label_id == 2 && {color:colors.red}]}>{value2.amount_label}</Text>
+                                            <Text style={[styles.amount,value2?.transaction?.label_name == 'Saldo Keluar'  && {color:colors.red}]}>{value2?.transaction?.amount_label}</Text>
                                         </View>
                                     </View>
                                 )

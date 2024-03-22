@@ -27,6 +27,7 @@ const TextInputWithIcon = ({
   iconStyle = {},
   editable = true,
   pressable = false,
+  keyboardType 
 }) => {
   return (
     <View
@@ -51,6 +52,7 @@ const TextInputWithIcon = ({
             value={value}
             onChangeText={onChangeText}
             editable={editable}
+            keyboardType={keyboardType}
           />
 
           <TouchableOpacity onPress={onPress}>

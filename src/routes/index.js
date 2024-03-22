@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Onboarding, Splash} from '../screens';
+import {Onboarding, SearchPhone, SendToFriend, Splash, Topup} from '../screens';
 import MainNavigator from './MainNavigator';
 import { Login, Otp, Register } from '../screens/Auth';
 
@@ -17,6 +17,9 @@ function AppNavigator() {
                 <Stack.Screen name="Register" component={Register} />
                 <Stack.Screen name="Otp" component={Otp} />
                 <Stack.Screen name="MainNavigator" component={MainNavigator} />
+                <Stack.Screen name="Topup" component={Topup} />
+                <Stack.Screen name="SearchPhone" component={SearchPhone} />
+                <Stack.Screen name="SendToFriend" component={SendToFriend} />
             </Stack.Navigator>
         </NavigationContainer>
     );

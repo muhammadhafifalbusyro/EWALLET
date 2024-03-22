@@ -15,6 +15,8 @@ const icons = {
     ic_launcher_round: require('../assets/icons/ic_launcher_round.png'),
     eyeOpen:require('../assets/icons/open.png'),
     eyeOff:require('../assets/icons/lock.png'),
+    buttonSend:require('../assets/icons/button_send.png'),
+    buttonTopup:require('../assets/icons/button_topup.png'),
 };
 
 export {fonts, images, icons};

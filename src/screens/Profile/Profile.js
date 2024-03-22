@@ -1,5 +1,5 @@
 import React,{ useState, useEffect } from 'react';
-import {View, Text, SafeAreaView, StyleSheet,Image,Pressable, ToastAndroid} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet,Image,Pressable, ToastAndroid, ScrollView, RefreshControl} from 'react-native';
 import {colors, dimens} from '../../utils';
 import {fonts, images} from '../../assets';
 import IonIcons from 'react-native-vector-icons/Ionicons'
@@ -8,15 +8,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Profile = ({navigation, route}) => {
     const [data,setData] = useState(null)
+    const [loading,setLoading] = useState(false)
 
     const handlerGetProfile = async () => {
-       
+        setLoading(true)
         const response = await getProfile()
         console.log("response get profile", response)
 
         if(response?.data){
             setData(response?.data)
+            setLoading(false)
         }else{
+            setLoading(false)
             return false
         }
     }
@@ -27,26 +30,33 @@ const Profile = ({navigation, route}) => {
     }
 
     useEffect(() => {
-        handlerGetProfile()
-    } ,[])
+		handlerGetProfile()
+		const unsubscribe = navigation.addListener('focus', () => {
+			handlerGetProfile()
+		});
+	
+		return unsubscribe;
+	  }, [navigation]);
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.body}>
-                <View style={styles.contentWrapper}>
-                    <Image source={images.default_account} style={styles.imageAcc}/>
-                    <Text style={styles.nama}>{data?.name}</Text>
-                    <Text style={styles.email}>{data?.email}</Text>
-                    <Text style={styles.phone}>{data?.phone}</Text>
+            <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={handlerGetProfile}/>}>
+                <View style={styles.body}>
+                    <View style={styles.contentWrapper}>
+                        <Image source={images.default_account} style={styles.imageAcc}/>
+                        <Text style={styles.nama}>{data?.name}</Text>
+                        <Text style={styles.email}>{data?.email}</Text>
+                        <Text style={styles.phone}>{data?.phone}</Text>
+                    </View>
+                    <Text style={styles.logout}>LOG OUT</Text>
+                    <View style={styles.logoutWrapper}>
+                        <Pressable style={styles.logoutButton} onPress={handlerLogout}>
+                            <IonIcons name='log-out-outline' color={colors.red} size={20}/>
+                            <Text style={styles.textLogoutButton}>Log Out</Text>
+                        </Pressable>
+                    </View>
                 </View>
-                <Text style={styles.logout}>LOG OUT</Text>
-                <View style={styles.logoutWrapper}>
-                    <Pressable style={styles.logoutButton} onPress={handlerLogout}>
-                        <IonIcons name='log-out-outline' color={colors.red} size={20}/>
-                        <Text style={styles.textLogoutButton}>Log Out</Text>
-                    </Pressable>
-                </View>
-            </View>
+            </ScrollView>
         </SafeAreaView>
     );
 };

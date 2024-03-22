@@ -30,7 +30,7 @@ const Otp = ({navigation, route}) => {
                 ToastAndroid.SHORT,
                 ToastAndroid.CENTER
             )
-            navigation.replace('MainNavigator')
+            navigation.replace('Login')
         }else{
             setLoading(false)
             ToastAndroid.show(
